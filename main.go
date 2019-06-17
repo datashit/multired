@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	flagHost    = flag.String("h", ":6379", "host address")
+	flagHost    = flag.String("h", ":6399", "host address")
 	flagCluster = flag.String("dest", "", "destination redis cluster (seperator ',') example:\"127.0.0.1:6379,127.0.0.2:6379\"")
 )
 
