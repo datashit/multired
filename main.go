@@ -28,7 +28,7 @@ func main() {
 			case "ping":
 				conn.WriteString("PONG")
 			case "mget":
-				if len(cmd.Args) < 2 {
+				if len(cmd.Args) < 3 {
 					conn.WriteError("ERR wrong number of arguments for '" + string(cmd.Args[0]) + "' command")
 					return
 				}
@@ -60,7 +60,28 @@ func main() {
 					conn.WriteString(str)
 
 				}
+			case "mset":
+				if len(cmd.Args) < 3 || (len(cmd.Args)-1)%2 != 0 {
+					conn.WriteError("ERR wrong number of arguments for '" + string(cmd.Args[0]) + "' command")
+					return
+				}
 
+				pipe := destRedis.Pipeline()
+
+				for i := 1; i < len(cmd.Args); i = i + 2 {
+					pipe.Do("set", cmd.Args[i], cmd.Args[i+1])
+				}
+
+				cmd, _ := pipe.Exec()
+
+				for _, c := range cmd {
+					if c.Err() != nil {
+						conn.WriteError(c.Err().Error())
+						return
+					}
+				}
+
+				conn.WriteString("OK")
 			}
 		},
 		func(conn redcon.Conn) bool {
